@@ -1,10 +1,12 @@
 #! python3
 import praw
 import pyttsx3
+import itertools
 
 
 subreddit_NAME = "AskReddit"
-min_comment_Nb = 1_000
+min_comment_Nb = 20
+minUpvotes = 1_000
 RATE = 150
 
 #average number of letters/word in english
@@ -12,9 +14,12 @@ AVG_Letters = 4.7
 
 #total duration of the tts
 total_time = 0
+
+#list containing all the comment objects + submission
+final_list = []
+
+#script for the tts
 final_script = ""
-
-
 
 #insitialising the tts engine
 tts_engine = pyttsx3.init()
@@ -48,30 +53,54 @@ hot_subreddit = subreddit.hot(limit=5)
 
 #finding a submission with enough comments to make content with
 for submission in hot_subreddit:
+    print(submission.title)
     comments = submission.comments
-
-    if len(comments) > min_comment_Nb:
+    
+    if len(comments) > min_comment_Nb and submission.score > minUpvotes:
+        final_list.append([submission])
+        final_script += submission.title
         break
 
+
+#finding interesting comments from the submission
 for comment in comments:
-    final_script += comment.body
-    total_time += (len(comment.body)/AVG_Letters)/RATE
+
+    #the Comment Object/ Objects as it can take into account a reply
+    commentBundle = [[]]
+    commentBundleBody = ''
+    
+    #if the comment in less than 30 words long look for relevant replies
+    if len(comment.body)/AVG_Letters < 30:
+        try:
+            commentBundle = [comment,comment.replies[0]]
+        except:
+            commentBundle = [comment]
+            continue
+    else:
+        commentBundle = [comment]
+
+    final_list.append(commentBundle)
+
+    for e in commentBundle:
+        #removes adjacent repeated letters and \n
+        commentBundleBody += ''.join(c[0] for c in itertools.groupby(e.body.strip('\n')))
+        
+    final_script += commentBundleBody
+    total_time += (len(commentBundleBody)/AVG_Letters)/RATE
 
     #if the length of the video is more than 10min
     if total_time > 10:
         break
+        
+    #to do adding spacing and punctuation to tts
+    #find slurs and remove any repeated letters for tts
 
+#checking for swear words
+#to refine with a better list
+##for slur in slurs:
+##    #if the isolated slur is present replace it with a space
+##    if (' ' + slur + ' ') in final_script.lower():
+##        final_script = final_script.replace(slur,' '*len(slur))
+##        
 print(final_script)
 
-
-
-
-
-
-
-
-
-
-
-
-    
