@@ -1,0 +1,22 @@
+!.gitignore
+**/*.mp4
+**/*.mp3
+
+**/*.png
+**/*.jpg
+**/*.jpeg
+
+**/*.json
+!/data/data.json
+
+/data/subredditThreads/**
+
+!audio/constant audio/**
+
+!video/input/images/logo_transparent.png
+!video/input/images/logo.png
+!video/input/images/banner.jpg
+!video/input/images/banner_fr.png
+!video/input/images/logo_fr.png
+!video/input/images/loading_bar/mid.png
+!video/input/images/loading_bar/side.png
